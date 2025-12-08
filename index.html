@@ -24,7 +24,7 @@
         -webkit-font-smoothing: antialiased;
       }
     </style>
-<script type="importmap">
+  <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.1",
@@ -34,6 +34,7 @@
   }
 }
 </script>
+<link rel="stylesheet" href="/index.css">
 </head>
   <body>
     <div id="root"></div>
@@ -113,7 +114,7 @@
         }
       };
 
-      // --- Data ---
+      // --- Data (dateColor property removed, calculated dynamically) ---
       const ANNUAL_ACTIVITIES = [
         {
           monthName: "2025年2月",
@@ -148,11 +149,11 @@
           records: [
             { date: "2025/04/03", name: "定例ミーティング", totalParticipants: 7, participants: ["maiP", "izawa", "Tyche", "RYU", "そーま (tqe)", "松本", "ken nakamori"] },
             { date: "2025/04/08", name: "くにづくりミーティング", totalParticipants: 8, participants: ["izawa", "maiP", "Tyche", "Ken", "RYU", "RR", "takuya", "とーや"] },
-            { date: "2025/04/10", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/04/10", name: "定例ミーティング", totalParticipants: 11, participants: ["ken nakamori", "Ken", "maiP", "小池", "Uwaizmi.eth", "とーや", "そーま (tqe)", "takuya", "RYU", "クボイ", "izawa"] },
             { date: "2025/04/15", name: "くにづくりミーティング", totalParticipants: 4, participants: ["izawa", "maiP", "Ken", "そーま (tqe)"] },
-            { date: "2025/04/17", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/04/17", name: "定例ミーティング", totalParticipants: 11, participants: ["maiP", "RR", "そーま (tqe)", "とーや", "きゅ〜ちゃん", "Uwaizmi.eth", "Ken", "ken nakamori", "pota", "izawa"] },
             { date: "2025/04/22", name: "くにづくりミーティング", totalParticipants: 6, participants: ["izawa", "きゅ〜ちゃん", "RYU", "ken nakamori", "Ken", "とーや"] },
-            { date: "2025/04/24", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/04/24", name: "定例ミーティング", totalParticipants: 5, participants: ["ken nakamori", "maiP", "Uwaizmi.eth", "izawa", "きゅ〜ちゃん"] },
             { date: "2025/04/24", name: "GPT・SNSプチ勉強会", totalParticipants: 5, participants: ["とーや", "きゅ〜ちゃん", "izawa", "daigan", "maiP"] },
             { date: "2025/04/25", name: "RIZE3x 事前MTG", totalParticipants: 2, participants: ["maiP", "ken nakamori"] },
             { date: "2025/04/25", name: "つきまち横丁視察", totalParticipants: 6, participants: ["izawa", "きゅ〜ちゃん", "Ken", "小池", "松本", "クボイ"] },
@@ -257,7 +258,7 @@
         {
           monthName: "2025年10月",
           records: [
-            { date: "2025/10/02", name: "定例ミーティング,オンライン歓迎会、小池さんVC会", totalParticipants: 9, participants: ["maiP", "くまさん", "Ken", "RYU", "ukishima", "小池", "shimo", "daigan", "きゅ〜ちゃん"] },
+            { date: "2025/10/02", name: "定例、オンライン歓迎会、小池さんVC会", totalParticipants: 9, participants: ["maiP", "くまさん", "Ken", "RYU", "ukishima", "小池", "shimo", "daigan", "きゅ〜ちゃん"] },
             { date: "2025/10/02", name: "AIで魚ゲームを作る会", totalParticipants: 7, participants: ["ukishima", "daigan", "MMB鯨井", "小池", "maiP", "Ken", "きゅ〜ちゃん"] },
             { date: "2025/10/09", name: "定例ミーティング", totalParticipants: 6, participants: ["maiP", "Ken", "shimo", "daigan", "きゅ〜ちゃん", "morimorisensei"] },
             { date: "2025/10/13", name: "CEATEC 設営", totalParticipants: 2, participants: ["maiP", "takuya"] },
@@ -411,14 +412,13 @@
                               
                               {/* Activity Name */}
                               <div className="flex-grow">
-                                <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-                                    <h4 className="text-lg md:text-xl font-normal text-[#1A1A1A]">
+                                <div className="mb-4 flex flex-wrap items-baseline gap-3">
+                                    <h4 className="text-lg md:text-xl leading-relaxed font-normal text-[#1A1A1A]">
                                     {record.name || <span className="text-gray-300 italic">No Title</span>}
                                     </h4>
                                     {record.totalParticipants > 0 && (
-                                        <span className="flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
-                                            <Users size={11} className="mr-1 opacity-70" />
-                                            参加者 {record.totalParticipants}名
+                                        <span className="text-xs text-gray-500 font-light px-2 py-0.5 bg-gray-50 border border-gray-100 rounded-md whitespace-nowrap">
+                                        参加者 {record.totalParticipants}名
                                         </span>
                                     )}
                                 </div>
@@ -470,5 +470,6 @@
         root.render(<App />);
       }
     </script>
-  </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>
