@@ -4,8 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>おさかなだお長崎 Season 2 年間活動記録</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM (UMD for standalone usage) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel Standalone for JSX compilation in browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <style>
       body {
         font-family: 'Noto Sans JP', sans-serif;
@@ -17,9 +27,9 @@
   <script type="importmap">
 {
   "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
     "react": "https://aistudiocdn.com/react@^19.2.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0"
   }
 }
@@ -27,5 +37,397 @@
 </head>
   <body>
     <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useMemo } = React;
+
+      // --- Icons ---
+      const Calendar = ({ size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+      );
+      const Users = ({ size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      );
+      const RefreshCw = ({ size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+      );
+      const Filter = ({ size = 24, className = "" }) => (
+        <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      );
+
+      // --- Utils ---
+      const generatePastelColor = (str) => {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+          hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const h = Math.abs(hash % 360);
+        const s = 25 + (Math.abs(hash) % 15); 
+        const l = 90 + (Math.abs(hash) % 8); 
+        return `hsl(${h}, ${s}%, ${l}%)`;
+      };
+
+      const getDateColorClass = (color) => {
+        switch (color) {
+          case 'red':
+            return 'text-red-900/80';
+          case 'blue':
+            return 'text-blue-900/80';
+          case 'black':
+          default:
+            return 'text-gray-500';
+        }
+      };
+
+      // --- Data ---
+      const ANNUAL_ACTIVITIES = [
+        {
+          monthName: "2025年2月",
+          records: [
+            { date: "2025/02/06", dateColor: "black", name: "定例ミーティング", totalParticipants: 7, participants: ["RYU", "ひでさん", "クボイ", "松本", "maiP", "Tyche", "izawa"] },
+            { date: "2025/02/06", dateColor: "black", name: "season2方針検討ディスカッション", totalParticipants: 6, participants: ["RYU", "maiP", "ひでさん", "izawa", "Tyche", "クボイ"] },
+            { date: "2025/02/13", dateColor: "black", name: "定例ミーティング", totalParticipants: 10, participants: ["Aki", "ken nakamori", "maiP", "izawa", "Tyche", "RYU", "くまさん", "ひでさん", "クボイ", "松本"] },
+            { date: "2025/02/18", dateColor: "black", name: "ニッポンの魚ビジネスEXPO 2025", totalParticipants: 3, participants: ["くまさん", "maiP", "松本"] },
+            { date: "2025/02/20", dateColor: "black", name: "定例ミーティング", totalParticipants: 4, participants: ["maiP", "Tyche", "izawa", "RYU"] },
+            { date: "2025/02/23", dateColor: "red", name: "不動通り商店街のくるくるマルシェ オフ会／カレーおでん販売", totalParticipants: 3, participants: ["maiP", "RYU", "doidoi"] },
+            { date: "2025/02/25", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 4, participants: ["maiP", "izawa", "Tyche", "ken nakamori"] },
+            { date: "2025/02/27", dateColor: "black", name: "定例ミーティング", totalParticipants: 5, participants: ["doidoi", "松本", "maiP", "izawa", "Tyche"] },
+            { date: "2025/02/28", dateColor: "black", name: "渋谷DAO DAY 登壇／ミートアップ", totalParticipants: 7, participants: ["maiP", "izawa", "RYU", "松本", "Aki", "のえ＠東京", "阪井 祐介"] }
+          ]
+        },
+        {
+          monthName: "2025年3月",
+          records: [
+            { date: "2025/03/01", dateColor: "black", name: "DAO DAYアフターゆるっとランチ交流会", totalParticipants: 1, participants: ["maiP"] },
+            { date: "2025/03/03", dateColor: "red", name: "くにづくりミーティング", totalParticipants: 5, participants: ["maiP", "izawa", "ken nakamori", "Tyche", "daigan"] },
+            { date: "2025/03/06", dateColor: "black", name: "定例ミーティング", totalParticipants: 5, participants: ["maiP", "RYU", "izawa", "Tyche", "小池"] },
+            { date: "2025/03/11", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 4, participants: ["Aki", "izawa", "maiP", "ken nakamori"] },
+            { date: "2025/03/13", dateColor: "black", name: "定例ミーティング", totalParticipants: 2, participants: ["maiP", "RYU"] },
+            { date: "2025/03/20", dateColor: "red", name: "定例ミーティング", totalParticipants: 4, participants: ["ken nakamori", "maiP", "izawa", "Tyche"] },
+            { date: "2025/03/20", dateColor: "red", name: "CryptoCafe&Bar 取材対応（蒲田西商店街のDAO関連）", totalParticipants: 1, participants: ["maiP"] },
+            { date: "2025/03/25", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 6, participants: ["izawa", "Tyche", "ken nakamori", "RYU", "Aki", "maiP"] },
+            { date: "2025/03/27", dateColor: "black", name: "定例ミーティング", totalParticipants: 6, participants: ["izawa", "maiP", "Ken", "Tyche", "RYU", "ken nakamori"] }
+          ]
+        },
+        {
+          monthName: "2025年4月",
+          records: [
+            { date: "2025/04/03", dateColor: "black", name: "定例ミーティング", totalParticipants: 7, participants: ["maiP", "izawa", "Tyche", "RYU", "そーま (tqe)", "松本", "ken nakamori"] },
+            { date: "2025/04/08", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 8, participants: ["izawa", "maiP", "Tyche", "Ken", "RYU", "RR", "takuya", "とーや"] },
+            { date: "2025/04/10", dateColor: "black", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/04/15", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 4, participants: ["izawa", "maiP", "Ken", "そーま (tqe)"] },
+            { date: "2025/04/17", dateColor: "black", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/04/22", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 6, participants: ["izawa", "きゅ〜ちゃん", "RYU", "ken nakamori", "Ken", "とーや"] },
+            { date: "2025/04/24", dateColor: "black", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/04/24", dateColor: "black", name: "GPT・SNSプチ勉強会", totalParticipants: 5, participants: ["とーや", "きゅ〜ちゃん", "izawa", "daigan", "maiP"] },
+            { date: "2025/04/25", dateColor: "black", name: "RIZE3x 事前MTG", totalParticipants: 2, participants: ["maiP", "ken nakamori"] },
+            { date: "2025/04/25", dateColor: "black", name: "つきまち横丁視察", totalParticipants: 6, participants: ["izawa", "きゅ〜ちゃん", "Ken", "小池", "松本", "クボイ"] },
+            { date: "2025/04/25", dateColor: "black", name: "あらチーム 意見交換会（壁打ち）", totalParticipants: 5, participants: ["きゅ〜ちゃん", "そーま (tqe)", "とーや", "クボイ", "小池"] },
+            { date: "2025/04/28", dateColor: "black", name: "RIZE3x 事前MTG", totalParticipants: 2, participants: ["maiP", "ken nakamori"] }
+          ]
+        },
+        {
+          monthName: "2025年5月",
+          records: [
+            { date: "2025/05/01", dateColor: "black", name: "定例ミーティング", totalParticipants: 7, participants: ["ken nakamori", "Uwaizmi.eth", "maiP", "izawa", "そーま (tqe)", "とーや", "松本"] },
+            { date: "2025/05/08", dateColor: "black", name: "定例ミーティング、新メンバー歓迎会", totalParticipants: 11, participants: ["とーや", "そーま (tqe)", "小池", "takuya", "ken nakamori", "maiP", "Ken", "きゅ〜ちゃん", "Uwaizmi.eth", "izawa", "Tyche"] },
+            { date: "2025/05/08", dateColor: "black", name: "長崎「ぶらぶら」視察", totalParticipants: 1, participants: ["shimo"] },
+            { date: "2025/05/13", dateColor: "red", name: "くにづくりミーティング", totalParticipants: 7, participants: ["maiP", "きゅ〜ちゃん", "Tyche", "Ken", "Uwaizmi.eth", "izawa", "RYU"] },
+            { date: "2025/05/14", dateColor: "black", name: "大手町3x3lab ランチミーティング", totalParticipants: 4, participants: ["doidoi", "フクチです", "izawa", "takuya"] },
+            { date: "2025/05/15", dateColor: "black", name: "定例ミーティング", totalParticipants: 9, participants: ["Ken", "kitaro", "RR", "ken nakamori", "Uwaizmi.eth", "とーや", "イト", "松本", "maiP"] },
+            { date: "2025/05/17", dateColor: "black", name: "京都 ミートアップ", totalParticipants: 2, participants: ["maiP", "ken nakamori"] },
+            { date: "2025/05/20", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 4, participants: ["きゅ〜ちゃん", "Ken", "Tyche", "とーや"] },
+            { date: "2025/05/22", dateColor: "black", name: "定例ミーティング兼くにづくりミーティング", totalParticipants: 9, participants: ["Ken", "Tyche", "とーや", "maiP", "ken nakamori", "Uwaizmi.eth", "RR", "ひでさん", "shimo"] },
+            { date: "2025/05/23", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 4, participants: ["Ken", "Tyche", "maiP", "きゅ〜ちゃん"] },
+            { date: "2025/05/27", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 5, participants: ["maiP", "きゅ〜ちゃん", "Ken", "Tyche", "Uwaizmi.eth"] },
+            { date: "2025/05/29", dateColor: "black", name: "定例ミーティング", totalParticipants: 7, participants: ["Ken", "ken nakamori", "maiP", "Tyche", "小池", "RR", "きゅ〜ちゃん"] }
+          ]
+        },
+        {
+          monthName: "2025年6月",
+          records: [
+            { date: "2025/06/05", dateColor: "black", name: "定例ミーティング", totalParticipants: 9, participants: ["ken nakamori", "maiP", "morimorisensei", "クボイ", "松本", "Uwaizmi.eth", "Tyche", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/06/08", dateColor: "blue", name: "ソーシャルイノベーションEXPO", totalParticipants: 5, participants: ["maiP", "Uwaizmi.eth", "RYU", "ken nakamori", "そーま (tqe)"] },
+            { date: "2025/06/10", dateColor: "black", name: "長崎ツアー事前MTG", totalParticipants: 6, participants: ["RYU", "そーま (tqe)", "ukishima", "ken nakamori", "maiP", "Tyche"] },
+            { date: "2025/06/12", dateColor: "black", name: "定例ミーティング、オンボーディング会", totalParticipants: 9, participants: ["Harry", "ken nakamori", "maiP", "ukishima", "Uwaizmi.eth", "そーま (tqe)", "RYU", "SammyBlue", "Tyche"] },
+            { date: "2025/06/19", dateColor: "black", name: "定例ミーティング、discord説明会", totalParticipants: 7, participants: ["Ken", "maiP", "ukishima", "松本", "Uwaizmi.eth", "RYU", "ken nakamori"] },
+            { date: "2025/06/26", dateColor: "black", name: "定例ミーティング", totalParticipants: 15, participants: ["ken nakamori", "maiP", "RYU", "そーま (tqe)", "Tyche", "ukishima", "ikisuke", "shimo", "ひでさん", "ゆうぎり", "小池", "とーや", "Uwaizmi.eth", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/06/26", dateColor: "black", name: "”食”×”サステナ”イベント登壇", totalParticipants: 1, participants: ["doidoi"] },
+            { date: "2025/06/28", dateColor: "black", name: "あら試作会", totalParticipants: 1, participants: ["イト"] },
+            { date: "2025/06/30", dateColor: "red", name: "長崎ブルーエコノミーMTG (CEATEC)", totalParticipants: 3, participants: ["takuya", "maiP", "きゅ〜ちゃん"] }
+          ]
+        },
+        {
+          monthName: "2025年7月",
+          records: [
+            { date: "2025/07/01", dateColor: "black", name: "CEATECミーティング実施 w/ JPYC様・三菱UFJ信託銀行様", totalParticipants: 4, participants: ["maiP", "きゅ〜ちゃん", "takuya", "Tyche"] },
+            { date: "2025/07/02", dateColor: "black", name: "長崎ツアー ミーティング実施", totalParticipants: 2, participants: ["maiP", "そーま (tqe)"] },
+            { date: "2025/07/03", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 9, participants: ["maiP", "RYU", "RR", "shibata", "Tyche", "ukishima", "Uwaizmi.eth", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/07/07", dateColor: "red", name: "長崎ブルーエコノミーMTG (CEATEC)", totalParticipants: 3, participants: ["takuya", "きゅ〜ちゃん", "松本"] },
+            { date: "2025/07/10", dateColor: "black", name: "定例ミーティング", totalParticipants: 6, participants: ["そーま (tqe)", "松本", "maiP", "Tyche", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/07/14", dateColor: "red", name: "長崎ブルーエコノミーMTG (CEATEC)", totalParticipants: 3, participants: ["takuya", "maiP", "きゅ〜ちゃん"] },
+            { date: "2025/07/16", dateColor: "black", name: "CEATEC 2025 企画展示エリア出展説明会および交流会、Xスペース配信", totalParticipants: 3, participants: ["takuya", "maiP", "松本"] },
+            { date: "2025/07/16", dateColor: "black", name: "Xスペース配信 第1回目", totalParticipants: 6, participants: ["maiP", "きゅ〜ちゃん", "Uwaizmi.eth", "Ken", "Tyche", "小池"] },
+            { date: "2025/07/17", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 8, participants: ["そーま (tqe)", "maiP", "Tyche", "Ken", "ukishima", "小池", "Uwaizmi.eth", "きゅ〜ちゃん"] },
+            { date: "2025/07/19", dateColor: "blue", name: "長崎ツアー／交流ディスカッション", totalParticipants: 5, participants: ["maiP", "そーま (tqe)", "ken nakamori", "イト", "tetsu"] },
+            { date: "2025/07/20", dateColor: "red", name: "長崎ツアー／大学間交流・ワークショップ・BBQ", totalParticipants: 4, participants: ["maiP", "そーま (tqe)", "イト", "tetsu"] },
+            { date: "2025/07/21", dateColor: "red", name: "長崎ツアー／養殖場視察", totalParticipants: 4, participants: ["maiP", "そーま (tqe)", "イト", "tetsu"] },
+            { date: "2025/07/22", dateColor: "black", name: "長崎ツアー", totalParticipants: 4, participants: ["maiP", "そーま (tqe)", "イト", "tetsu"] },
+            { date: "2025/07/22", dateColor: "black", name: "リワード分科会 第1回", totalParticipants: 6, participants: ["Ken", "maiP", "きゅ〜ちゃん", "Tyche", "ukishima", "RYU"] },
+            { date: "2025/07/23", dateColor: "black", name: "長崎ブルーエコノミーMTG (CEATEC)", totalParticipants: 2, participants: ["takuya", "maiP"] },
+            { date: "2025/07/24", dateColor: "black", name: "定例ミーティング、SNS分科会 第1回", totalParticipants: 9, participants: ["maiP", "RYU", "松本", "ukishima", "Tyche", "ken nakamori", "小池", "きゅ〜ちゃん", "semi"] },
+            { date: "2025/07/24", dateColor: "black", name: "スペース配信", totalParticipants: 2, participants: ["小池", "きゅ〜ちゃん"] },
+            { date: "2025/07/29", dateColor: "black", name: "リワード分科会 第2回", totalParticipants: 5, participants: ["maiP", "きゅ〜ちゃん", "Ken", "Tyche", "ukishima"] },
+            { date: "2025/07/30", dateColor: "black", name: "Gitcoin Grants 勉強会", totalParticipants: 7, participants: ["Ken", "maiP", "ukishima", "きゅ〜ちゃん", "そーま (tqe)", "Tyche", "ゆうぎり"] },
+            { date: "2025/07/31", dateColor: "black", name: "定例ミーティング", totalParticipants: 10, participants: ["maiP", "ukishima", "Tyche", "うしくん", "Ken", "きゅ〜ちゃん", "ゆうぎり", "RYU", "松本", "Uwaizmi.eth"] },
+            { date: "2025/07/31", dateColor: "black", name: "スペース配信", totalParticipants: 2, participants: ["maiP", "きゅ〜ちゃん"] }
+          ]
+        },
+        {
+          monthName: "2025年8月",
+          records: [
+            { date: "2025/08/05", dateColor: "red", name: "長崎ブルーエコノミーMTG (CEATEC)", totalParticipants: 2, participants: ["maiP", "takuya"] },
+            { date: "2025/08/05", dateColor: "red", name: "リワード分科会 第3回", totalParticipants: 4, participants: ["maiP", "Ken", "Tyche", "ukishima"] },
+            { date: "2025/08/07", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 11, participants: ["maiP", "ukishima", "Tyche", "うしくん", "Ken", "ゆうぎり", "RYU", "ともよ", "ゆうぎり", "Uwaizmi.eth", "きゅ〜ちゃん"] },
+            { date: "2025/08/07", dateColor: "black", name: "メタバースオフィス訪問", totalParticipants: 11, participants: ["maiP", "ukishima", "Tyche", "うしくん", "Ken", "ゆうぎり", "きゅ〜ちゃん", "RYU", "ともよ", "Uwaizmi.eth", "ゆうぎり"] },
+            { date: "2025/08/08", dateColor: "black", name: "長崎交流ツアー報告会", totalParticipants: 8, participants: ["maiP", "ken nakamori", "小池", "tetsu", "そーま (tqe)", "イト", "ukishima", "Tyche"] },
+            { date: "2025/08/13", dateColor: "red", name: "SNS分科会 第2回", totalParticipants: 4, participants: ["きゅ〜ちゃん", "ukishima", "ゆうぎり", "maiP"] },
+            { date: "2025/08/19", dateColor: "black", name: "リワード分科会 第4回", totalParticipants: 5, participants: ["きゅ〜ちゃん", "Ken", "Tyche", "ukishima", "小池"] },
+            { date: "2025/08/21", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 6, participants: ["Tyche", "Ken", "RYU", "きゅ〜ちゃん", "ukishima", "maiP"] },
+            { date: "2025/08/25", dateColor: "red", name: "WEB3地方創生サミット2025 出展／登壇／ミートアップ", totalParticipants: 4, participants: ["くまさん", "ポタくん", "kazootaku", "maiP"] },
+            { date: "2025/08/25", dateColor: "red", name: "DAO夏祭り登壇／ミートアップ", totalParticipants: 3, participants: ["kazootaku", "くまさん", "maiP"] },
+            { date: "2025/08/26", dateColor: "black", name: "SNS分科会 第3回", totalParticipants: 5, participants: ["きゅ〜ちゃん", "ゆうぎり", "Ken", "Tyche", "ukishima"] },
+            { date: "2025/08/28", dateColor: "black", name: "定例ミーティング", totalParticipants: 10, participants: ["Tyche", "Ken", "RYU", "きゅ〜ちゃん", "ukishima", "shimo", "Uwaizmi.eth", "maiP", "daigan", "ゆうぎり"] },
+            { date: "2025/08/28", dateColor: "black", name: "オンライン歓迎会 (急遽開催）", totalParticipants: 0, participants: [] },
+            { date: "2025/08/29", dateColor: "black", name: "NFT media(DAO夏祭り)取材対応", totalParticipants: 1, participants: ["maiP"] }
+          ]
+        },
+        {
+          monthName: "2025年9月",
+          records: [
+            { date: "2025/09/02", dateColor: "black", name: "RIZE3x 展示", totalParticipants: 1, participants: ["ken nakamori"] },
+            { date: "2025/09/04", dateColor: "black", name: "定例ミーティング", totalParticipants: 6, participants: ["Tyche", "Ken", "RYU", "ukishima", "maiP", "きゅ〜ちゃん"] },
+            { date: "2025/09/07", dateColor: "red", name: "長崎一生さんによる陸上養殖を学ぶ会（オンライン）", totalParticipants: 3, participants: ["くまさん", "maiP", "kazootaku"] },
+            { date: "2025/09/09", dateColor: "black", name: "CEATEC事前取材対応", totalParticipants: 1, participants: ["maiP"] },
+            { date: "2025/09/10", dateColor: "black", name: "SNS分科会 エキストラ開催", totalParticipants: 3, participants: ["maiP", "きゅ〜ちゃん", "Ken"] },
+            { date: "2025/09/11", dateColor: "black", name: "定例ミーティング", totalParticipants: 8, participants: ["daigan", "Tyche", "Uwaizmi.eth", "Ken", "ukishima", "maiP", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/09/12", dateColor: "black", name: "", totalParticipants: 3, participants: ["maiP", "まみたす", "shimo"] },
+            { date: "2025/09/13", dateColor: "blue", name: "みんてく出展", totalParticipants: 2, participants: ["maiP", "ゆうぎり"] },
+            { date: "2025/09/17", dateColor: "black", name: "EDCON前夜オフ会？", totalParticipants: 0, participants: [] },
+            { date: "2025/09/18", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 7, participants: ["Ken", "RYU", "小池", "ukishima", "daigan", "Tyche", "きゅ〜ちゃん"] },
+            { date: "2025/09/18", dateColor: "black", name: "EDCON登壇", totalParticipants: 3, participants: ["Ryoma / Yuki", "Uwaizmi.eth", "maiP"] },
+            { date: "2025/09/25", dateColor: "black", name: "定例ミーティング", totalParticipants: 8, participants: ["maiP", "くまさん", "Ken", "RYU", "Tyche", "小池", "ikisuke", "きゅ〜ちゃん"] },
+            { date: "2025/09/30", dateColor: "black", name: "オフ会（ふぐぶた酒場）", totalParticipants: 5, participants: ["Nobuaki Tanaka", "Uwaizmi.eth", "maiP", "くまさん", "Ken"] }
+          ]
+        },
+        {
+          monthName: "2025年10月",
+          records: [
+            { date: "2025/10/02", dateColor: "black", name: "定例ミーティング,オンライン歓迎会、小池さんVC会", totalParticipants: 9, participants: ["maiP", "くまさん", "Ken", "RYU", "ukishima", "小池", "shimo", "daigan", "きゅ〜ちゃん"] },
+            { date: "2025/10/02", dateColor: "black", name: "AIで魚ゲームを作る会", totalParticipants: 7, participants: ["ukishima", "daigan", "MMB鯨井", "小池", "maiP", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/10/09", dateColor: "black", name: "定例ミーティング", totalParticipants: 6, participants: ["maiP", "Ken", "shimo", "daigan", "きゅ〜ちゃん", "morimorisensei"] },
+            { date: "2025/10/13", dateColor: "red", name: "CEATEC 設営", totalParticipants: 2, participants: ["maiP", "takuya"] },
+            { date: "2025/10/14", dateColor: "red", name: "CEATEC", totalParticipants: 4, participants: ["くまさん", "ゆうぎり", "maiP", "takuya"] },
+            { date: "2025/10/15", dateColor: "black", name: "CEATEC／プレゼン", totalParticipants: 3, participants: ["Uwaizmi.eth", "maiP", "takuya"] },
+            { date: "2025/10/16", dateColor: "black", name: "定例ミーティング", totalParticipants: 7, participants: ["daigan", "Ken", "shimo", "Tyche", "ukishima", "小池", "きゅ〜ちゃん"] },
+            { date: "2025/10/16", dateColor: "black", name: "CEATEC／プレゼン／懇親会", totalParticipants: 4, participants: ["maiP", "ゆうぎり", "うしくん", "takuya"] },
+            { date: "2025/10/17", dateColor: "black", name: "CEATEC／プレゼン", totalParticipants: 5, participants: ["doidoi", "maiP", "MMB鯨井", "kazootaku", "takuya"] },
+            { date: "2025/10/17", dateColor: "black", name: "魚ん町マルシェMTG", totalParticipants: 4, participants: ["Nobuaki Tanaka", "きゅ〜ちゃん", "小池", "けいたん"] },
+            { date: "2025/10/23", dateColor: "black", name: "定例ミーティング", totalParticipants: 10, participants: ["daigan", "Ken", "Teraoka", "maiP", "shimo", "Tyche", "くまさん", "morimorisensei", "うしくん", "きゅ〜ちゃん"] },
+            { date: "2025/10/30", dateColor: "black", name: "定例ミーティング", totalParticipants: 10, participants: ["RYU", "Nobuaki Tanaka", "ひでさん", "小池", "daigan", "shimo", "Ken", "maiP", "Tyche", "きゅ〜ちゃん"] },
+            { date: "2025/10/30", dateColor: "black", name: "長崎の未来を描くまちづくり構想発表会", totalParticipants: 3, participants: ["shimo", "きゅ〜ちゃん", "Hiro2021"] },
+            { date: "2025/10/31", dateColor: "black", name: "JPYC勉強会", totalParticipants: 3, participants: ["maiP", "daigan", "Tyche"] }
+          ]
+        },
+        {
+          monthName: "2025年11月",
+          records: [
+            { date: "2025/11/04", dateColor: "red", name: "CEATEC 2025 後夜祭", totalParticipants: 8, participants: ["くまさん", "うしくん", "doidoi", "maiP", "takuya", "ティラ", "shin.ito", "ひでさん"] },
+            { date: "2025/11/04", dateColor: "red", name: "Xスペース配信 w/魚ん町＋", totalParticipants: 2, participants: ["Nobuaki Tanaka", "きゅ〜ちゃん"] },
+            { date: "2025/11/06", dateColor: "black", name: "オンライン歓迎会、定例ミーティング、のーうぉーげーむ体験会", totalParticipants: 5, participants: ["maiP", "小池", "daigan", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/11/13", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 5, participants: ["daigan", "ティラ", "maiP", "Tyche", "Ken"] },
+            { date: "2025/11/16", dateColor: "red", name: "魚ん町+出展（のーうぉーゲーム大会実施）", totalParticipants: 2, participants: ["小池", "Nobuaki Tanaka"] },
+            { date: "2025/11/18", dateColor: "black", name: "RX DAO登壇", totalParticipants: 1, participants: ["maiP"] },
+            { date: "2025/11/20", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 9, participants: ["ken nakamori", "morimorisensei", "RYU", "shimo", "daigan", "くまさん", "maiP", "Tyche", "Ken"] },
+            { date: "2025/11/27", dateColor: "black", name: "定例ミーティング", totalParticipants: 9, participants: ["ken nakamori", "morimorisensei", "RYU", "shimo", "daigan", "くまさん", "maiP", "Tyche", "Ken"] },
+            { date: "2025/11/29", dateColor: "black", name: "オフ会・プレゼン発表（長崎友輪家 忘年会）", totalParticipants: 4, participants: ["くまさん", "maiP", "morimorisensei", "kazootaku"] },
+            { date: "2025/11/30", dateColor: "black", name: "", totalParticipants: 0, participants: [] }
+          ]
+        },
+        {
+          monthName: "2025年12月",
+          records: [
+            { date: "2025/12/01", dateColor: "red", name: "ブルーバーガー事前MTG", totalParticipants: 2, participants: ["maiP", "きゅ〜ちゃん"] },
+            { date: "2025/12/02", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/12/04", dateColor: "black", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/12/08", dateColor: "red", name: "（予定）「おさかな学園」PJ ミーティング", totalParticipants: 6, participants: ["ゆうぎり", "うしくん", "ずんだ", "gruppetto", "りこち", "わたあめ子"] },
+            { date: "2025/12/18", dateColor: "black", name: "「勝浦ブルーバーガー」セッション", totalParticipants: 0, participants: [] },
+            { date: "2025/12/18", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 0, participants: [] },
+            { date: "2025/12/20", dateColor: "blue", name: "Social Innovation EXPO 2025 Winter", totalParticipants: 3, participants: ["maiP", "ひでさん", "きゅ〜ちゃん"] }
+          ]
+        }
+      ];
+
+      // --- App Component ---
+      const App = () => {
+        const [filterName, setFilterName] = useState(null);
+
+        // Filter logic
+        const filteredData = useMemo(() => {
+          if (!filterName) return ANNUAL_ACTIVITIES;
+
+          return ANNUAL_ACTIVITIES.map(month => ({
+            ...month,
+            records: month.records.filter(record => 
+              record.participants.includes(filterName)
+            )
+          })).filter(month => month.records.length > 0);
+        }, [filterName]);
+
+        const handleNameClick = (name) => {
+          setFilterName(name);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        const handleReset = () => {
+          setFilterName(null);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        return (
+          <div className="min-h-screen bg-white text-[#1A1A1A] selection:bg-gray-200">
+            {/* Hero Section */}
+            <div className="relative w-full h-[35vh] md:h-[45vh] bg-[#D9DDF8] overflow-hidden">
+              <img 
+                src="./header.png" 
+                alt="おさかなだお長崎 Season 2 Header" 
+                className="w-full h-full object-cover object-[80%_center] md:object-right"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent" />
+              
+              <div className="absolute inset-0 flex flex-col items-start justify-center p-8 md:pl-20 lg:pl-32">
+                <h2 className="text-sm md:text-base font-medium tracking-[0.2em] text-[#6B7280] mb-3 uppercase">
+                  おさかなだお長崎 Season 2
+                </h2>
+                <h1 className="text-3xl md:text-5xl font-light tracking-wide text-[#1A1A1A]">
+                  年間活動記録
+                </h1>
+              </div>
+            </div>
+
+            <main className="max-w-4xl mx-auto px-6 py-16 md:py-24">
+              {/* Filter Status */}
+              <div className="mb-16 sticky top-6 z-20">
+                <div className="bg-white/90 backdrop-blur-md border border-gray-100 shadow-sm rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-gray-50 rounded-full text-gray-400">
+                      {filterName ? <Filter size={18} /> : <Calendar size={18} />}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs text-[#6B7280] font-medium tracking-wider uppercase">Filter</span>
+                      <span className="text-sm font-medium">
+                        {filterName ? (
+                          <span className="flex items-center gap-2">
+                            Selected: <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-900">{filterName}</span>
+                          </span>
+                        ) : "All Activities"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {filterName && (
+                    <button
+                      onClick={handleReset}
+                      className="group flex items-center gap-2 px-5 py-2.5 bg-[#1A1A1A] text-white text-xs tracking-wider rounded-full hover:bg-gray-800 transition-colors w-full sm:w-auto justify-center"
+                    >
+                      <RefreshCw size={14} className="group-hover:rotate-180 transition-transform duration-500" />
+                      RESET FILTER
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Content Area */}
+              <div className="space-y-24">
+                {filteredData.length === 0 ? (
+                  <div className="text-center py-20 text-gray-400 font-light">
+                    <p>No activities found for this participant.</p>
+                    <button onClick={handleReset} className="mt-4 text-sm underline hover:text-gray-800">Clear filter</button>
+                  </div>
+                ) : (
+                  filteredData.map((month) => (
+                    <section key={month.monthName} className="relative">
+                      {/* Month Heading */}
+                      <div className="sticky top-28 md:top-24 z-10 pb-8 bg-gradient-to-b from-white via-white to-transparent pointer-events-none">
+                          <h3 className="text-2xl font-light text-[#1A1A1A] inline-block bg-white pr-4">
+                              {month.monthName}
+                          </h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-12 pl-2 md:pl-4 border-l border-gray-100 ml-2 md:ml-0">
+                        {month.records.map((record, idx) => (
+                          <div key={`${month.monthName}-${idx}`} className="group relative pl-6 md:pl-10">
+                            {/* Timeline Dot */}
+                            <div className="absolute left-[-5px] top-2 w-2.5 h-2.5 bg-gray-200 rounded-full border-2 border-white group-hover:bg-gray-400 transition-colors" />
+
+                            <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-12 mb-3">
+                              {/* Date */}
+                              <div className={`text-sm md:w-32 flex-shrink-0 font-medium tracking-wide ${getDateColorClass(record.dateColor)}`}>
+                                {record.date}
+                              </div>
+                              
+                              {/* Activity Name */}
+                              <div className="flex-grow">
+                                <h4 className="text-lg md:text-xl leading-relaxed font-normal text-[#1A1A1A] mb-4">
+                                  {record.name || <span className="text-gray-300 italic">No Title</span>}
+                                </h4>
+
+                                {/* Participants */}
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {record.participants.length > 0 ? (
+                                    record.participants.map((person) => (
+                                      <button
+                                        key={person}
+                                        onClick={() => handleNameClick(person)}
+                                        style={{ backgroundColor: generatePastelColor(person) }}
+                                        className="px-3 py-1 rounded-full text-[11px] md:text-xs font-medium text-black hover:opacity-75 transition-opacity duration-200"
+                                      >
+                                        {person}
+                                      </button>
+                                    ))
+                                  ) : (
+                                      <span className="text-xs text-gray-300 flex items-center gap-1">
+                                          <Users size={12} /> No participants
+                                      </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  ))
+                )}
+              </div>
+            </main>
+
+            {/* Footer */}
+            <footer className="mt-32 py-12 border-t border-gray-100 text-center">
+              <p className="text-xs text-gray-400 tracking-widest uppercase">
+                © 2025 Osakana DAO Nagasaki
+              </p>
+            </footer>
+          </div>
+        );
+      };
+
+      // --- Mount ---
+      const rootElement = document.getElementById('root');
+      if (rootElement) {
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<App />);
+      }
+    </script>
   </body>
 </html>
