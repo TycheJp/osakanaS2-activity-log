@@ -24,7 +24,7 @@
         -webkit-font-smoothing: antialiased;
       }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.1",
@@ -91,24 +91,29 @@
       ];
 
       const getDateColorClass = (dateString) => {
-        const date = new Date(dateString);
-        // getDay(): 0 = Sunday, 6 = Saturday
-        const day = date.getDay();
+        // Parse "YYYY/MM/DD" manually to avoid UTC conversion issues
+        const parts = dateString.split('/');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // JS Month is 0-indexed
+        const dayOfMonth = parseInt(parts[2], 10);
+        
+        const date = new Date(year, month, dayOfMonth);
+        const day = date.getDay(); // 0 = Sunday, 6 = Saturday
         const isHoliday = HOLIDAYS_2025.includes(dateString);
 
         if (isHoliday || day === 0) {
           // Sunday or Holiday -> Red
-          return 'text-red-900/80';
+          return 'text-red-600';
         } else if (day === 6) {
           // Saturday -> Blue
-          return 'text-blue-900/80';
+          return 'text-blue-600';
         } else {
-          // Weekday -> Black (Gray)
-          return 'text-gray-500';
+          // Weekday -> Black
+          return 'text-[#1A1A1A]';
         }
       };
 
-      // --- Data (dateColor property removed, calculated dynamically) ---
+      // --- Data ---
       const ANNUAL_ACTIVITIES = [
         {
           monthName: "2025年2月",
@@ -280,15 +285,14 @@
             { date: "2025/11/20", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 9, participants: ["ken nakamori", "morimorisensei", "RYU", "shimo", "daigan", "くまさん", "maiP", "Tyche", "Ken"] },
             { date: "2025/11/27", name: "定例ミーティング", totalParticipants: 9, participants: ["ken nakamori", "morimorisensei", "RYU", "shimo", "daigan", "くまさん", "maiP", "Tyche", "Ken"] },
             { date: "2025/11/29", name: "オフ会・プレゼン発表（長崎友輪家 忘年会）", totalParticipants: 4, participants: ["くまさん", "maiP", "morimorisensei", "kazootaku"] },
-            { date: "2025/11/30", name: "", totalParticipants: 0, participants: [] }
           ]
         },
         {
           monthName: "2025年12月",
           records: [
             { date: "2025/12/01", name: "ブルーバーガー事前MTG", totalParticipants: 2, participants: ["maiP", "きゅ〜ちゃん"] },
-            { date: "2025/12/02", name: "くにづくりミーティング", totalParticipants: 0, participants: [] },
-            { date: "2025/12/04", name: "定例ミーティング", totalParticipants: 0, participants: [] },
+            { date: "2025/12/02", name: "くにづくりミーティング", totalParticipants: 4, participants: ["maiP", "Tyche", "Ken", "きゅ〜ちゃん"] },
+            { date: "2025/12/04", name: "定例ミーティング", totalParticipants: 15, participants: ["maiP", "shimo", "うしくん", "ゆうぎり", "りこち", "ティラ", "daigan", "くまさん", "大紬にゃん", "歴史艦ラビィ", "Tyche", "Ken", "きゅ〜ちゃん", "MIST", "RYU"] },
             { date: "2025/12/08", name: "（予定）「おさかな学園」PJ ミーティング", totalParticipants: 6, participants: ["ゆうぎり", "うしくん", "ずんだ", "gruppetto", "りこち", "わたあめ子"] },
             { date: "2025/12/18", name: "「勝浦ブルーバーガー」セッション", totalParticipants: 0, participants: [] },
             { date: "2025/12/18", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 0, participants: [] },
@@ -407,9 +411,17 @@
                               
                               {/* Activity Name */}
                               <div className="flex-grow">
-                                <h4 className="text-lg md:text-xl leading-relaxed font-normal text-[#1A1A1A] mb-4">
-                                  {record.name || <span className="text-gray-300 italic">No Title</span>}
-                                </h4>
+                                <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+                                    <h4 className="text-lg md:text-xl font-normal text-[#1A1A1A]">
+                                    {record.name || <span className="text-gray-300 italic">No Title</span>}
+                                    </h4>
+                                    {record.totalParticipants > 0 && (
+                                        <span className="flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500 border border-gray-200">
+                                            <Users size={11} className="mr-1 opacity-70" />
+                                            参加者 {record.totalParticipants}名
+                                        </span>
+                                    )}
+                                </div>
 
                                 {/* Participants */}
                                 <div className="flex flex-wrap items-center gap-2">
