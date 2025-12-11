@@ -185,7 +185,7 @@ export const ANNUAL_ACTIVITIES: MonthData[] = [
       { date: "2025/12/11", dateColor: "black", name: "くにづくりミーティング", totalParticipants: 0, participants: [] },
       { date: "2025/12/18", dateColor: "black", name: "「勝浦ブルーバーガー」セッション", totalParticipants: 0, participants: [] },
       { date: "2025/12/18", dateColor: "black", name: "定例ミーティング、オンライン歓迎会", totalParticipants: 0, participants: [] },
-      { date: "2025/12/20", dateColor: "blue", name: "Social Innovation EXPO 2025 Winter", totalParticipants: 3, participants: ["maiP", "ひでさん", "きゅ〜ちゃん"] }
+      { date: "2025/12/20", dateColor: "blue", name: "Social Innovation EXPO 2025 Winter", totalParticipants: 4, participants: ["maiP", "ひでさん", "きゅ〜ちゃん", "RYU"] }
     ]
   }
 ];
